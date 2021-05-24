@@ -1,0 +1,62 @@
+## example of logistic regression
+
+# classify student application as admit or reject
+target or dependent variable 
+  # admit(0-n0,1-yes)
+predictors or independent variables
+  # GRE
+  # GPA 
+  # RANK
+```{r}
+mydata<-read.csv(file.choose(),header=T)
+str(mydata)
+head(mydata)
+```
+# convert data into factor
+```{r}
+mydata$admit<-as.factor(mydata$admit)
+mydata$rank<-as.factor(mydata$rank)
+str(mydata)
+```
+# two eay table of factor variable
+```{r}
+xtabs(~admit+rank,data=mydata)
+```
+Partition data >> train & test
+```{r}
+library(rsample)
+data_split<-initial_split(mydata)
+train<-training(data_split) ## 400 variables
+test<-testing(data_split)   ## 100 variables
+```
+## Logistic regression model 
+```{r}
+mymodel<-glm(admit~gre+gpa+rank,data=train,family = 'binomial')
+summary(mymodel)
+
+```
+## prediction --> train data
+```{r}
+p1<-predict(mymodel,data=train,type = "response")
+head(p1)
+head(train)
+```
+## misclassification error -->> traindata
+```{r}
+pred1<-ifelse(p1>0.5,1,0)
+tab1<-table(predicted=pred1,actual=train$admit)
+tab1
+1-sum(diag(tab1)/sum(tab1))  ## % of misclassification error
+```
+
+for testing data
+```{r}
+p2<-predict(mymodel,test,type="response")
+head(p2)
+pred2<-ifelse(p2>0.5,1,0)
+tab2<-table(predicted=pred2,actual=test$admit)
+tab2
+1-sum(diag(tab2)/sum(tab2))
+```
+
+   
